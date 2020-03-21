@@ -1,0 +1,35 @@
+name = "LikelihoodfreeInference"
+uuid = "cd2aa8dc-5fe9-4447-95c1-c1231bf7cee8"
+authors = ["Johanni Brea <jbrea@users.noreply.github.com>"]
+version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DiffResults = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
+PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+
+[compat]
+julia = "^1"
+DiffResults = "^1"
+Distributions = "^0.22"
+ForwardDiff = "^0.10"
+NLopt = "^0.5"
+PDMats = "^0.9"
+Requires = "^1"
+Roots = "^1"
+StatsBase = "^0.32"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

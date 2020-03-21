@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LikelihoodfreeInference = "cd2aa8dc-5fe9-4447-95c1-c1231bf7cee8"
+
+[compat]
+Documenter = "~0.24"
