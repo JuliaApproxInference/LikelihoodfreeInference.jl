@@ -1,6 +1,12 @@
 [deps]
+BayesianOptimization = "4c6ed407-134f-591c-93fa-e0f7c164a0ec"
+BlackBoxOptim = "a134a8b2-14d6-55f6-9291-3336d3ab0209"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LikelihoodfreeInference = "cd2aa8dc-5fe9-4447-95c1-c1231bf7cee8"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+PyCMA = "18a872d9-6c85-48dd-a3db-ac5a59caed6f"
+SimultaneousPerturbationStochasticApproximation = "1663b253-47ef-444c-a4fb-e919f25dc38d"
+StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
 Documenter = "~0.24"
