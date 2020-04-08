@@ -96,6 +96,7 @@ function Kernel(; gamma = NaN,
 end
 bandwidth(k::Kernel) = bandwidth(k.bandwidth)
 update!(k::Kernel, x) = update!(k.bandwidth, x)
+update!(k::Kernel, simulated::Vector{T}, data::T) where T = update!(k, [k.distance(x, data) for x in simulated])
 (k::Kernel)(a, b) = k(k.distance(a, b, bandwidth(k)))
 
 abstract type AbstractKernel end

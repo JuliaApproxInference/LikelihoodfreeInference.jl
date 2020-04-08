@@ -69,7 +69,7 @@ computeK(K::Number, ::Any) = K
 computeK(K::Function, n) = K(n)
 function (k::KernelLoss)(θ, model, data, n = 1)
     S = [model(θ) for _ in 1:computeK(k.K, n)]
-    n == 1 && update!(k.kernel, pairwise_euclidean([S..., data]))
+    n == 1 && update!(k.kernel, S, data)
     k.loss(S, data, k.kernel) - logpdf(k.prior, θ)
 end
 mutable struct QDLoss{D,EPS,Tk,P}

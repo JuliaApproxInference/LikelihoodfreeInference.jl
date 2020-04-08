@@ -108,7 +108,7 @@ function KernelABC(; kernel, prior, K, delta)
 end
 function kernelabc!(k, model, data; updatekernel = true)
     y = model.(k.particles)
-    updatekernel && update!(k.kernel, pairwise_euclidean([y..., data]))
+    updatekernel && update!(k.kernel, y, data)
     kystar = [k.kernel(yi, data) for yi in y]
     G = zeros(length(y), length(y))
     @simd for i in eachindex(y)
