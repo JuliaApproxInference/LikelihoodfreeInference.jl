@@ -31,8 +31,8 @@ where `method` can be an Approximate Bayesian Computation (ABC) method
 using LikelihoodfreeInference, StatsPlots, Distributions
 model(x) = randn() .+ x
 data = [2.]
-method = KernelABC(delta = 1e-8,
-                   K = 10^3,
+method = KernelABC(delta = eps(),
+                   K = 10^4,
                    kernel = Kernel(),
                    prior = TruncatedMultivariateNormal([0.], [5.],
                                                        lower = [-5.],
