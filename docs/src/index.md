@@ -18,6 +18,7 @@ where `method` can be an Approximate Bayesian Computation (ABC) method
 
 ```@example
 using LikelihoodfreeInference, StatsPlots, Distributions
+gr() # hide
 model(x) = randn() .+ x
 data = [2.]
 method = KernelABC(delta = 1e-8,

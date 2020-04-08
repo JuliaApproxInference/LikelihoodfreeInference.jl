@@ -6,8 +6,8 @@
 # ```math
 # N_{t+1} = P N_{t-\tau}\exp(-N_{t-\tau}/N_0)e_t + N_t\exp(-\delta \epsilon_t)
 # ```
-# where ``e_t`` and ``\epsilon_t`` are independent Gamma random deviates with
-# mean 1 and variance ``\sigma_p^2`` and ``\sigma_d^2``, respectively.
+# where ``eₜ`` and ``ϵₜ`` are independent Gamma random deviates with
+# mean 1 and variance ``σp²`` and ``σd²``, respectively.
 using Distributions, StatsBase, LikelihoodfreeInference
 Base.@kwdef struct BlowFlyModel
     burnin::Int = 50
@@ -26,7 +26,7 @@ end
 
 # Let us plot four realizations from this model with the same parameters.
 using StatsPlots
-plotly()
+gr()
 m = BlowFlyModel()
 plot([plot(m(29, 260, .6, .3, 7, .2),
            xlabel = "t", ylabel = "N", legend = false) for _ in 1:4]...,

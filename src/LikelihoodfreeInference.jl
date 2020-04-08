@@ -22,7 +22,7 @@ function __init__()
                                      N = nothing, kwargs...)
             p = particles(x)
             w = weights(x)
-            N = N === nothing ? min(5000, 10*length(p)) : N
+            N = N === nothing ? min(1000, 10*length(p)) : N
             M = vcat([hcat(resample(p, w)...)' for _ in 1:div(N, length(p))]...)
             StatsPlots.corrplot(M; kwargs...)
         end
