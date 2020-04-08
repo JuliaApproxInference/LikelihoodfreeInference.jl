@@ -18,15 +18,15 @@ Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
-julia = "^1"
 DiffResults = "^1"
-Distributions = "^0.22"
+Distributions = "^0.22, 0.23"
 ForwardDiff = "^0.10"
 NLopt = "^0.5"
 PDMats = "^0.9"
 Requires = "^1"
 Roots = "^1"
 StatsBase = "^0.32"
+julia = "^1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
