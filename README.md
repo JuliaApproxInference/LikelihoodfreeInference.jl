@@ -27,7 +27,7 @@ where `method` can be an Approximate Bayesian Computation (ABC) method
 
 ## Example
 
-```@example
+```julia
 using LikelihoodfreeInference, StatsPlots, Distributions
 model(x) = randn() .+ x
 data = [2.]
