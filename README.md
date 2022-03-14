@@ -44,5 +44,5 @@ plot!(figure, -1:.01:5, pdf.(Normal.(-1:.01:5, 26/25), 25/26*2.0))
 ```
 ![](example.png)
 
-See [documentation](https://jbrea.github.io/LikelihoodfreeInference.jl/dev)
+See [documentation](https://juliaapproxinference.github.io/LikelihoodfreeInference.jl/dev)
 or example notebooks [Gaussian model](https://github.com/jbrea/LikelihoodfreeInference.jl/blob/gh-pages/dev/generated/toyexample.ipynb) and [Blowfly model](https://github.com/jbrea/LikelihoodfreeInference.jl/blob/gh-pages/dev/generated/blowfly.ipynb).
