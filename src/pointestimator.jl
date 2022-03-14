@@ -6,7 +6,7 @@ L(x, y, k) = -log(mean(k(xi, y) for xi in x))
     KernelLoss(; loss = L, K = 50,
                  kerneltype = ModifiedGaussian,
                  gamma = .1,
-                 heuristic = Nothing,
+                 heuristic = MedianHeuristic(),
                  prior = nothing,
                  distance = euclidean,
                  kernel = Kernel(type = kerneltype,
@@ -56,7 +56,7 @@ end
 function KernelLoss(; loss = L, K = 50,
                       kerneltype = ModifiedGaussian,
                       gamma = .1,
-                      heuristic = Nothing,
+                      heuristic = MedianHeuristic(),
                       prior = nothing,
                       distance = euclidean,
                       kernel = Kernel(type = kerneltype,
@@ -65,8 +65,29 @@ function KernelLoss(; loss = L, K = 50,
                                       distance = distance))
     KernelLoss(loss, K, kernel, prior)
 end
+"""
+    MMDLoss(; single_observation = false, kwargs...)
+
+Returns a [`KernelLoss`](@ref) structure with the maximum mean discrepancy (MMD)
+loss; to be used as a `loss` in a [`PointEstimator`](@ref). `kwargs` are passed
+to the [`KernelLoss`](@ref) constructor.
+If `single_observation = true` the data is expected to be a single vector of
+numbers; otherwise a vector of vectors.
+
+This `MMDLoss` is inspired by
+[Briol, F.-X., Barp, A., Duncan, A. B. and Girolami, M., (2019),
+Statistical Inference for Generative Models with Maximum Mean Discrepancy,
+arXiv:1906.05944]
+(https://arxiv.org/abs/1906.05944)
+"""
+function MMDLoss(; single_observation = false, kwargs...)
+    loss = single_observation ? (S, data, k) -> mmd(S, [data], k) :
+                                (S, data, k) -> mmd(vcat(S...), data, k)
+    KernelLoss(; loss = loss, kwargs...)
+end
 computeK(K::Number, ::Any) = K
 computeK(K::Function, n) = K(n)
+computeK(K::Base.RefValue, ::Any) = K[]
 function (k::KernelLoss)(θ, model, data, n = 1)
     S = [model(θ) for _ in 1:computeK(k.K, n)]
     n == 1 && update!(k.kernel, S, data)
@@ -146,6 +167,63 @@ function objective(model, data, loss;
         result
     end
 end
+struct EnergyLoss{TK}
+    K::TK
+end
+"""
+    EnergyLoss(K = 50)
+
+Return an energy loss minization structure, that can be used as a `loss` in
+[`PointEstimator`](@ref).
+
+See e.g. section 6.1 of
+[Székely, G. J. and Rizzo, M. L., (2013)
+Energy statistics: A class of statistics based on distances,
+Journal of Statistical Planning and Inference, 8:1249-1272]
+(http://dx.doi.org/10.1016/j.jspi.2013.03.018).
+"""
+function EnergyLoss(; prior = nothing, K = 50)
+    prior !== nothing && @warn "Priors are ignored in `EnergyLoss`."
+    EnergyLoss(K)
+end
+function (e::EnergyLoss)(θ, model, data::T, n = 1) where T
+    S = [model(θ) for _ in 1:computeK(e.K, n)]
+    if T <: AbstractVector{<:AbstractVector}
+        energydistance(vcat(S...), data)
+    elseif T <: AbstractVector{<:Number}
+        energydistance(S, [data])
+    end
+end
+struct KLLoss{TK}
+    K::TK
+end
+"""
+    KLLoss(K = 50)
+
+Return a KL-loss minization structure, that can be used as a `loss` in
+[`PointEstimator`](@ref).
+
+[Jiang, B., Wu, T.-Y. and Wong, W. H., (2018)
+Approximate Bayesian Computation with Kullback-Leibler Divergence as Data Discrepancy,
+Proceedings of Machine Learning Research,
+(http://proceedings.mlr.press/v84/jiang18a.html).
+"""
+function KLLoss(; prior = nothing, K = 50)
+    prior !== nothing && @warn "Priors are ignored in `KLLoss`."
+    KLLoss(K)
+end
+function (e::KLLoss)(θ, model, data::T, n = 1) where T
+    S = [model(θ) for _ in 1:computeK(e.K, n)]
+    if T <: AbstractVector{<:AbstractVector}
+        kldistance(vcat(S...), data)
+    elseif T <: AbstractVector{<:Number}
+        kldistance(S, data)
+    end
+end
+function (e::KLLoss)(θ, model, data::AbstractVector{<:Number}, n = 1)
+    S = [model(θ) for _ in 1:computeK(e.K, n)]
+    energydistance(S, [data])
+end
 """
     PointEstimator(optimizer, loss)
 """
@@ -181,6 +259,7 @@ end
 function run!(p::PointEstimator, model, data;
               maxfevals = Inf, callback = () -> nothing, verbose = true)
     _optimize(p.optimizer, objective(model, data, p.loss, callback = callback),
-              maxfevals = div(maxfevals, computeK(p.loss.K, 1)), verbose = verbose)
+              maxfevals = max(div(maxfevals, computeK(p.loss.K, 1)), 1),
+              verbose = verbose)
 end
 

@@ -1,4 +1,4 @@
-using Documenter, Literate, LikelihoodfreeInference, PyCMA, BlackBoxOptim, SimultaneousPerturbationStochasticApproximation, BayesianOptimization, StatsPlots
+using Documenter, Literate, LikelihoodfreeInference, CMAEvolutionStrategy, BlackBoxOptim, SimultaneousPerturbationStochasticApproximation, BayesianOptimization, StatsPlots
 
 OUTDIR = joinpath(@__DIR__, "src", "generated")
 for example in ("toyexample.jl", "blowfly.jl")

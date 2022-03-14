@@ -1,10 +1,10 @@
 """
-Package for likelihood-free inference. Includes Bayesian methods `PMC`, `AdaptiveSMC`, `KernelABC` and `K2ABC`, and point estimators with kernel loss, Quantile Descent loss and Kernel Recursive ABC.
+Package for likelihood-free inference. Includes Bayesian methods `PMC`, `AdaptiveSMC`, `KernelABC` and `K2ABC`, and different point estimators.
 """
 module LikelihoodfreeInference
 using Distributions, Random, LinearAlgebra, StatsBase, Dates, PDMats, Roots, Requires, NLopt, Printf, DiffResults, ForwardDiff
 
-export PMC, run!, EpsilonExponentialDecay, EpsilonLinearDecay, MultivariateUniform, AdaptiveSMC, MultiParticleNormal, TruncatedMultivariateNormal, defaultproposal, weights, particles, mean, PointEstimator, QDLoss, KernelLoss, K2ABC, Kernel, Gaussian, ModifiedGaussian, MedianHeuristic, ScottsHeuristic, Bandwidth, Smoothed, Scheduled, StandardMMD, KernelABC, KernelRecursiveABC, LogGaussianKernel, euclidean, energydistance
+export PMC, run!, EpsilonExponentialDecay, EpsilonLinearDecay, MultivariateUniform, AdaptiveSMC, MultiParticleNormal, TruncatedMultivariateNormal, defaultproposal, weights, particles, mean, PointEstimator, QDLoss, KernelLoss, K2ABC, Kernel, Gaussian, ModifiedGaussian, MedianHeuristic, ScottsHeuristic, Bandwidth, Smoothed, Scheduled, StandardMMD, KernelABC, KernelRecursiveABC, LogGaussianKernel, euclidean, energydistance, EnergyLoss, MMDLoss, KLLoss, kldistance, mmd
 
 include("distributions.jl")
 include("utils.jl")

@@ -96,7 +96,15 @@ function Kernel(; gamma = NaN,
 end
 bandwidth(k::Kernel) = bandwidth(k.bandwidth)
 update!(k::Kernel, x) = update!(k.bandwidth, x)
-update!(k::Kernel, simulated::Vector{T}, data::T) where T = update!(k, [k.distance(x, data) for x in simulated])
+function update!(k::Kernel, simulated::Vector{T}, data::T) where T
+    if T <: AbstractVector{<:Number}
+        d = [k.distance(x, data) for x in simulated]
+    elseif T <: AbstractVector{<:AbstractVector}
+        d = vcat([[k.distance(xi, d) for xi in x] for x in simulated, d in data]...)
+    end
+    update!(k, d)
+end
+update!(k::Kernel{<:Any,<:Bandwidth{Nothing}}, ::Vector{T}, ::T) where T = k
 (k::Kernel)(a, b) = k(k.distance(a, b, bandwidth(k)))
 
 abstract type AbstractKernel end

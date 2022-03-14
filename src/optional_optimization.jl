@@ -1,48 +1,38 @@
-@require PyCMA = "18a872d9-6c85-48dd-a3db-ac5a59caed6f" begin
+@require CMAEvolutionStrategy = "8d3b24bd-414e-49e0-94fb-163cc3a3e411" begin
     mutable struct CMA
         x0
         sigma0
-        options
-        fminoptions
+        lower
+        upper
+        kwargs
     end
     cma(prior; kwargs...) = cma(lower(prior), upper(prior); kwargs...)
     """
         cma(lower, upper;
             sigma0 = 0.25,
-            fminoptions = NamedTuple(),
-            filename = "tmp-",
             kwargs...)
-         cma(prior; kwargs...) = cma(lower(prior), upper(prior); kwargs...)
+        cma(prior; kwargs...) = pycma(lower(prior), upper(prior); kwargs...)
 
-    CMA optimizer for [`PointEstimator`](@ref), available when `using PyCMA`.
-    `kwargs` are passed to `PyCMA.cma.CMAOptions`, `fminoptions` to `PyCMA.cma.fmin`.
+    CMA optimizer for [`PointEstimator`](@ref), available when
+    `using CMAEvolutionStrategy`.
+    `kwargs` are passed to `CMAEvolutionStrategy.minimize`.
     """
     function cma(lower, upper;
                  sigma0 = 0.25,
-                 fminoptions = NamedTuple(),
-                 filename = "tmp-",
                  kwargs...)
         d = length(lower)
         if d == 1
             error("CMA-ES is not recommended to be used in 1 dimension.")
         end
-        CMA("np.random.rand($d) * $(upper .- lower) + $lower", sigma0,
-            PyCMA.cma.CMAOptions(; bounds = (lower, upper),
-                           verb_filenameprefix = joinpath(@__DIR__, "cma", filename),
-                           kwargs...),
-            merge((restarts = 1, bipop = true,
-                   noise_handler = PyCMA.cma.NoiseHandler(d)),
-                  fminoptions))
+        CMA(rand(d) .* (upper .- lower) + lower, sigma0,
+            lower, upper, kwargs)
     end
     export cma
-    function _optimize(o::CMA, f; maxfevals, verbose)
-        o.options["maxfevals"] = maxfevals
-        o.options["verbose"] = typeof(verbose) <: Bool ?
-                                    (verbose ? -1 : -9) : verbose
-        res = PyCMA.cma.fmin(f, o.x0, o.sigma0;
-                       options = o.options,
-                       o.fminoptions...)
-        (x = res[1], f = res[2], res = res)
+    function _optimize(o::CMA, f; maxfevals, verbose = 1)
+        res = CMAEvolutionStrategy.minimize(f, o.x0, o.sigma0;
+                                            lower = o.lower, upper = o.upper,
+                                            o.kwargs...)
+        (x = xbest(res), f = fbest(res), res = res)
     end
 end
 @require BlackBoxOptim = "a134a8b2-14d6-55f6-9291-3336d3ab0209" begin
@@ -153,5 +143,42 @@ end
     function _optimize(o::SPSATmp, f; maxfevals, verbose)
         res = SimultaneousPerturbationStochasticApproximation.minimize!(o.s, f, maxfevals = maxfevals, verbose = verbose)
         (x = res[1].x, f = res[1].f, res = res)
+    end
+end
+@require CMAEvolutionStrategy = "8d3b24bd-414e-49e0-94fb-163cc3a3e411" begin
+    cma(prior; kwargs...) = cma(lower(prior), upper(prior); kwargs...)
+    function cma(lower, upper;
+                 K = Ref(0), minK = 2, maxK = 10^3, alphaK = 1.5,
+                 maxfevals = typemax(Int),
+                 kwargs...)
+        n = length(lower)
+        x0 = (upper .- lower) .* rand(n) .+ lower
+        cb = s -> begin
+            if s > 0
+                if K[] < maxK
+                    K[] = min(maxK, round(Int, K[] * alphaK))
+                    return true
+                else
+                    return true
+                end
+            else
+                if K[] > minK
+                    K[] = max(minK, round(Int, K[] / alphaK^.25))
+                end
+                return false
+            end
+        end
+        noise = CMAEvolutionStrategy.NoiseHandling(n, callback = cb)
+        CMAEvolutionStrategy.Optimizer(x0, .25; noise_handling = noise,
+                                       lower = lower, upper = upper,
+                                       maxfevals = maxfevals, kwargs...)
+    end
+    export cma
+    function _optimize(o::CMAEvolutionStrategy.Optimizer, f; maxfevals, verbose)
+        o.stop.maxfevals = maxfevals
+        o.logger.verbosity = verbose
+        res = CMAEvolutionStrategy.run!(o, f)
+        (x = CMAEvolutionStrategy.population_mean(res),
+         f = CMAEvolutionStrategy.fbest(res), res = res)
     end
 end

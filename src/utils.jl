@@ -23,9 +23,9 @@ end
 log_ess(logw) = -logsumexp(2 .* logw)
 ess(w) = 1/sum(w.^2)
 
-euclidean(x, y) = √sum(abs2, x - y)
+euclidean(x, y) = √sum(abs2, x .- y)
 euclidean(x, y, b::Number) = euclidean(x, y)/b
-euclidean(x, y, b::AbstractVector) = √sum(abs2, (x - y) ./ b)
+euclidean(x, y, b::AbstractVector) = √sum(abs2, (x .- y) ./ b)
 pairwise_euclidean(x::AbstractVector{<:AbstractVector{<:AbstractVector}}) = pairwise_euclidean(vcat(x...))
 function pairwise_euclidean(x, b = 1)
     n = length(x)
@@ -39,24 +39,56 @@ function pairwise_euclidean(x, b = 1)
     end
     result
 end
-function energydistance(x, y, b = 1)
+function energydistance(x, y, b)
+    c1, c2, c3, nx, ny = _inner(x, y, (i, j) -> euclidean(i, j, b))
+    2*(c1/(nx*ny) - c2/nx^2 - c3/ny^2)
+end
+function energydistance(x, y)
+    c1, c2, c3, nx, ny = _inner(x, y, euclidean)
+    2*(c1/(nx*ny) - c2/nx^2 - c3/ny^2)
+end
+struct StandardMMD end
+struct LinearMMD end
+struct RandomFourierMMD end
+function _inner(x, y, k)
     c1 = 0.; c2 = 0.; c3 = 0.
     nx = length(x)
     ny = length(y)
     @simd for i in 1:nx
         for j in 1:ny
-            @inbounds c1 += euclidean(x[i], y[j], b)
+            @inbounds c1 += k(x[i], y[j])
         end
         for j in i+1:nx
-            @inbounds c2 += euclidean(x[i], x[j], b)
+            @inbounds c2 += k(x[i], x[j])
         end
     end
     @simd for i in 1:ny
         for j in i+1:ny
-            @inbounds c3 += euclidean(y[i], y[j], b)
+            @inbounds c3 += k(y[i], y[j])
         end
     end
-    2*(c1/(nx*ny) - c2/nx^2 - c3/ny^2)
+    c1, c2, c3, nx, ny
+end
+mmd(x, y, k) = mmd(StandardMMD, x, y, k)
+function mmd(::Type{StandardMMD},
+             x::AbstractVector{<:AbstractVector},
+             y::AbstractVector{<:AbstractVector}, k)
+    c1, c2, c3, nx, ny = _inner(x, y, k)
+    2*((nx == 1 ? 0. : c2/(nx * (nx - 1))) +
+       (ny == 1 ? 0. : c3/(ny * (ny - 1))) -
+       c1/(nx * ny))
+end
+function mmd(::Type{StandardMMD},
+             x::AbstractVector{<:Number},
+             y::AbstractVector{<:Number}, k)
+    -2 * k(x, y)
+end
+function kldistance(x, y)
+    res = 0.
+    for xi in x
+        res += log(minimum(euclidean(xi, yj) for yj in y))
+    end
+    res
 end
 
 

@@ -37,23 +37,6 @@ Proceedings of Machine Learning Research, 51:398-407
 ](http://proceedings.mlr.press/v51/park16.html)
 """
 K2ABC(; kernel, epsilon, prior, K) = K2ABC{StandardMMD}(kernel = kernel, epsilon = epsilon, prior = prior, K = K)
-struct StandardMMD end
-struct LinearMMD end
-struct RandomFourierMMD end
-function mmd(::Type{StandardMMD}, k,
-             x::AbstractVector{<:AbstractVector},
-             y::AbstractVector{<:AbstractVector})
-    nx = length(x)
-    ny = length(y)
-    1/(nx * (nx - 1)) * sum(i == j ? 0. : k(x[i], x[j]) for i in 1:nx, j in 1:nx) +
-    1/(ny * (ny - 1)) * sum(i == j ? 0. : k(y[i], y[j]) for i in 1:ny, j in 1:ny) -
-    2/(nx * ny) * sum(k(x[i], y[j]) for i in 1:nx, j in 1:ny)
-end
-function mmd(::Type{StandardMMD}, k,
-             x::AbstractVector{<:Number},
-             y::AbstractVector{<:Number})
-    -2 * k(x, y)
-end
 
 
 function run!(rng::Random.AbstractRNG, k::K2ABC{MMD}, model, data;
@@ -61,7 +44,7 @@ function run!(rng::Random.AbstractRNG, k::K2ABC{MMD}, model, data;
     update!(k.kernel, data)
     for i in 1:k.K
         rand!(rng, k.prior, k.particles[i])
-        k.weights[i] = exp(-mmd(MMD, k.kernel, model(k.particles[i]), data)/k.epsilon)
+        k.weights[i] = exp(-mmd(MMD, model(k.particles[i]), data)/k.epsilon, k.kernel)
     end
     k.weights ./= sum(k.weights)
     (weights = k.weights, particles = k.particles)

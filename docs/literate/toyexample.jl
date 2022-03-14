@@ -65,10 +65,10 @@ plot!(figure, -1:.01:5, trueposterior, label = "posterior")
 
 # ## Point Estimates
 # Sometimes we just want a point estimate. We will use BayesianOptimization.jl
-# here to minimize the default `QDLoss`. We know that the true maximum
+# here to minimize the `QDLoss`. We know that the true maximum
 # likelihood estimate is at mean = 25/26*2 ≈ 1.923
 using BayesianOptimization
-p = PointEstimator(optimizer = bo([-10.], [10.]), prior = prior, K = 100)
+p = PointEstimator(optimizer = bo([-10.], [10.]), losstype = QDLoss, prior = prior, K = 100)
 result = run!(p, model, data, maxfevals = 5*10^4, verbose = false);
 result.x
 

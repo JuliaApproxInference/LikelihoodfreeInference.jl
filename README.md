@@ -6,10 +6,10 @@
 ![Lifecycle](https://img.shields.io/badge/lifecycle-retired-orange.svg)
 ![Lifecycle](https://img.shields.io/badge/lifecycle-archived-red.svg)
 ![Lifecycle](https://img.shields.io/badge/lifecycle-dormant-blue.svg) -->
-[![Build Status](https://travis-ci.com/jbrea/LikelihoodfreeInference.jl.svg?branch=master)](https://travis-ci.com/jbrea/LikelihoodfreeInference.jl)
+<!--[![Build Status](https://travis-ci.com/jbrea/LikelihoodfreeInference.jl.svg?branch=master)](https://travis-ci.com/jbrea/LikelihoodfreeInference.jl)
 [![codecov.io](http://codecov.io/github/jbrea/LikelihoodfreeInference.jl/coverage.svg?branch=master)](http://codecov.io/github/jbrea/LikelihoodfreeInference.jl?branch=master)
-[![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://jbrea.github.io/LikelihoodfreeInference.jl/stable)
-[![Documentation](https://img.shields.io/badge/docs-master-blue.svg)](https://jbrea.github.io/LikelihoodfreeInference.jl/dev)
+[![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://jbrea.github.io/LikelihoodfreeInference.jl/stable)-->
+[![Documentation](https://img.shields.io/badge/docs-master-blue.svg)](https://juliaapproxinference.github.io/LikelihoodfreeInference.jl/dev)
 
 Given some measured data `y0` and a potentially stochastic model `model(x)`
 that takes parameters `x` and returns simulated data `y`,
@@ -44,5 +44,5 @@ plot!(figure, -1:.01:5, pdf.(Normal.(-1:.01:5, 26/25), 25/26*2.0))
 ```
 ![](example.png)
 
-See [documentation](https://jbrea.github.io/LikelihoodfreeInference.jl/)
+See [documentation](https://jbrea.github.io/LikelihoodfreeInference.jl/dev)
 or example notebooks [Gaussian model](https://github.com/jbrea/LikelihoodfreeInference.jl/blob/gh-pages/dev/generated/toyexample.ipynb) and [Blowfly model](https://github.com/jbrea/LikelihoodfreeInference.jl/blob/gh-pages/dev/generated/blowfly.ipynb).
